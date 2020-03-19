@@ -10,6 +10,26 @@
 //start when ready
 document.addEventListener('DOMContentLoaded', function(){
     'use strict';
+
+//polyfill chainable .on to maintain mvc (fails if no selector, could be fixed by using 
+//selector as the callback if not provided, or using array)
+(function(){
+    EventTarget.prototype.on = function(eventName, selector, callback) {
+        this.addEventListener(eventName, function(e) {
+            for (var target = e.target; target && target != this; target = target.parentNode) {
+                if (target.matches(selector)) {
+                    callback.call(target, e);
+                    event.stopPropagation();
+                    break;
+                }
+            }
+        }, false);
+        return this;
+    };
+    console.log("EventTarget function \"on\" added");
+})();
+
+    
     console.log("DOM loaded");
     
     //shorthand for query selector
@@ -53,8 +73,8 @@ document.addEventListener('DOMContentLoaded', function(){
     var App = {
         init: function () {
             this.todos = util.store('todos-jquery');
-            this.todoTemplate = Handlebars.compile(document.getElementById('todo-template').innerHTML);
-            this.footerTemplate = Handlebars.compile(document.getElementById('footer-template').innerHTML);
+            this.todoTemplate = Handlebars.compile($('#todo-template').innerHTML);
+            this.footerTemplate = Handlebars.compile($('#footer-template').innerHTML);
             this.bindEvents();
             new Router({
                 '/:filter': function (filter) {
@@ -66,27 +86,11 @@ document.addEventListener('DOMContentLoaded', function(){
         //init jQuery Removed
     
         bindEvents: function () {
-            //polyfill chainable .on to maintain mvc (fails if no selector)
-            (function(){
-                EventTarget.prototype.on = function(eventName, selector, callback) {
-                    this.addEventListener(eventName, function(e) {
-                        for (var target = e.target; target && target != this; target = target.parentNode) {
-                            if (target.matches(selector)) {
-                                callback.call(target, e);
-                                event.stopPropagation();
-                                break;
-                            }
-                        }
-                    }, false);
-                    return this;
-                };
-                console.log("EventTarget function \"on\" added");
-            })();
             
-            document.querySelector('#new-todo').addEventListener('keyup', this.create.bind(this));
-            document.querySelector('#toggle-all').addEventListener('change', this.toggleAll.bind(this));
-            document.querySelector('#footer').on('click', '#clear-completed', this.destroyCompleted.bind(this));
-            document.querySelector('#todo-list')
+            $('#new-todo').addEventListener('keyup', this.create.bind(this));
+            $('#toggle-all').addEventListener('change', this.toggleAll.bind(this));
+            $('#footer').on('click', '#clear-completed', this.destroyCompleted.bind(this));
+            $('#todo-list')
                 .on('change', '.toggle', this.toggle.bind(this))
                 .on('dblclick', 'label', this.editMode.bind(this))
                 .on('keyup', '.edit', this.editModeKeyup.bind(this))
@@ -237,9 +241,7 @@ document.addEventListener('DOMContentLoaded', function(){
     
     };
     App.init();
-    //App.init jQuery Removed
-    //All tests seemed to pass
-    //Onload/Onready should not be required if loaded last
+
 });
 
 
