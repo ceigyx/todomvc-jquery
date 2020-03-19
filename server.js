@@ -1,3 +1,5 @@
+/*jshint esversion:6 */
+
 // init project
 var express = require('express');
 var app = express();
