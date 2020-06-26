@@ -4,7 +4,9 @@
 	"description": "Demo for TodoMVC jQuery",
 	"main": "server.js",
 	"scripts": {
-		"start": "node server.js"
+		"start": "node server.js",
+		"start noJquery": "node server.js -noJquery",
+		"start noJqueryRedoMethods": "node server.js -noJqueryRedoMethods"
 	},
 	"dependencies": {
 		"express": "^4.12.4"
